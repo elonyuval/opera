@@ -24,8 +24,8 @@ export default function BreakfastSection() {
           />
 
           <ul className="flex flex-col gap-3">
-            {breakfastSection.items.map((item) => (
-              <li key={item.name} className="rounded-xl border border-line bg-warm-white p-4">
+            {breakfastSection.items.map((item, index) => (
+              <li key={index} className="rounded-xl border border-line bg-warm-white p-4">
                 <p className="font-semibold text-ink">{item.name}</p>
                 <p className="text-sm text-ink-soft">{item.description}</p>
               </li>
