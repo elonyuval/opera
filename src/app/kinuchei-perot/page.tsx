@@ -29,7 +29,7 @@ export default function FruitDessertsPage() {
           as="h1"
           eyebrow="Fruit Desserts"
           title={seo.pages.fruitDesserts.h1}
-          paragraph="קינוחי פטיסרי בעבודת יד, עם שכבות מפתיעות, מרקמים מדויקים ומראה שאי אפשר להתעלם ממנו. שמות הקינוחים המוצגים כאן הם דמה — יוחלפו בשמות האמיתיים לאחר קבלתם מהלקוח."
+          paragraph="קינוחי פטיסרי בעבודת יד, עם שכבות מפתיעות, מרקמים מדויקים ומראה שאי אפשר להתעלם ממנו."
           align="center"
         />
 
@@ -60,11 +60,6 @@ export default function FruitDessertsPage() {
               <div className="flex flex-col gap-4 text-right">
                 <h2 className="font-display text-2xl text-ink md:text-3xl">
                   {dessert.name}
-                  {dessert.isPlaceholderName && (
-                    <span className="mr-2 align-middle text-xs font-normal text-ink-soft">
-                      (שם דמה)
-                    </span>
-                  )}
                 </h2>
                 <p className="text-base leading-relaxed text-ink-soft">
                   {dessert.description}

@@ -45,9 +45,7 @@ export default function EventsSection({ headingLevel = "h2" }: EventsSectionProp
         align="center"
       />
 
-      <div className="mt-4 rounded-xl border border-dashed border-gold/40 bg-gold-light/20 p-4 text-center text-sm text-ink-soft">
-        {eventsSection.internalNote}
-      </div>
+      {/* eventsSection.internalNote (src/data/siteContent.ts) — הערה פנימית לצוות/לקוח בלבד, לא מוצגת למבקרי האתר */}
 
       <form onSubmit={handleSubmit} className="mt-10 grid grid-cols-1 gap-5 sm:grid-cols-2" noValidate>
         <input

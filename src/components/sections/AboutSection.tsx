@@ -14,17 +14,8 @@ export default function AboutSection() {
         ))}
       </div>
 
-      {/* הערה פנימית לצוות הפיתוח/לקוח — אינה מוצגת כטקסט שיווקי באתר החי */}
-      <div className="mt-12 rounded-xl border border-dashed border-gold/40 bg-gold-light/20 p-5">
-        <p className="mb-2 text-sm font-semibold text-ink">
-          פרטים שעדיין דרושים מהלקוח להשלמת עמוד האודות:
-        </p>
-        <ul className="list-inside list-disc space-y-1 text-sm text-ink-soft">
-          {aboutSection.factsNeeded.map((fact) => (
-            <li key={fact}>{fact.replace("⚠️ TODO(client): ", "")}</li>
-          ))}
-        </ul>
-      </div>
+      {/* aboutSection.factsNeeded (src/data/siteContent.ts) — רשימת פרטים הדרושים מהלקוח.
+          מפורטת גם ב-README; לא מוצגת כאן כדי לא לבלבל מבקרים באתר החי. */}
     </section>
   );
 }

@@ -14,11 +14,11 @@ export default function AccessibilityPage() {
     <div className="mx-auto max-w-3xl px-6 py-20 md:px-8 md:py-28">
       <SectionHeading as="h1" title="הצהרת נגישות" align="center" />
 
+      {/* ⚠️ TODO(client): להשלים בדיקת נגישות מלאה ולעדכן פרטי רכז נגישות לפני עלייה לאוויר */}
       <div className="mt-10 flex flex-col gap-5 text-right text-ink-soft">
         <p>
           אנו שואפים להנגיש את האתר לכלל הציבור, כולל אנשים עם מוגבלות, בהתאם
-          לתקנות שוויון זכויות לאנשים עם מוגבלות. עמוד זה הוא טיוטת placeholder —
-          ⚠️ יש להשלים בדיקת נגישות מלאה ולעדכן פרטי רכז נגישות לפני עלייה לאוויר.
+          לתקנות שוויון זכויות לאנשים עם מוגבלות.
         </p>
         <p>
           האתר תוכנן עם תמיכה בניווט מקלדת מלא, ניגודיות צבעים נאותה, טקסט חלופי
