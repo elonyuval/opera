@@ -10,12 +10,7 @@ import ReducedMotionFallback from "@/components/three/ReducedMotionFallback";
 import PrimaryButton from "@/components/shared/PrimaryButton";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { usePerformanceTier } from "@/hooks/usePerformanceTier";
-import {
-  scrollStages,
-  dessertLayers,
-  dessertExperienceConfig,
-  type LayerId,
-} from "@/data/dessertAnimationConfig";
+import { scrollStages, dessertExperienceConfig } from "@/data/dessertAnimationConfig";
 
 export default function DessertScrollExperience() {
   const prefersReducedMotion = useReducedMotion();
@@ -23,7 +18,6 @@ export default function DessertScrollExperience() {
   const wrapperRef = useRef<HTMLDivElement | null>(null);
   const progressRef = useRef(0);
   const [activeStageId, setActiveStageId] = useState(scrollStages[0].id);
-  const [revealedLabels, setRevealedLabels] = useState<LayerId[]>([]);
   const [showFinalCta, setShowFinalCta] = useState(false);
 
   const useLightExperience = prefersReducedMotion || performanceTier === "low";
@@ -48,22 +42,16 @@ export default function DessertScrollExperience() {
           setActiveStageId((prev) => (prev === stage.id ? prev : stage.id));
         }
 
-        const nextRevealed = dessertLayers
-          .filter((layer) => self.progress >= layer.labelRevealAt && self.progress < 0.97)
-          .map((layer) => layer.id);
-        setRevealedLabels((prev) =>
-          prev.length === nextRevealed.length &&
-          prev.every((id, index) => id === nextRevealed[index])
-            ? prev
-            : nextRevealed
-        );
-
         setShowFinalCta((prev) => {
           const next = self.progress > 0.94;
           return prev === next ? prev : next;
         });
       },
     });
+
+    // רענון מדידות ה-ScrollTrigger אחרי שהפונטים נטענו — מונע pin/scrub
+    // שמתחיל במיקום שגוי בגלל שינוי גובה עדין כתוצאה מהחלפת פונט מאוחרת.
+    document.fonts?.ready?.then(() => ScrollTrigger.refresh());
 
     return () => {
       trigger.kill();
@@ -90,30 +78,15 @@ export default function DessertScrollExperience() {
           <CameraRig progressRef={progressRef} />
         </DessertCanvas>
 
-        <div className="pointer-events-none absolute inset-0 flex flex-col justify-between p-6 md:p-12">
-          <div className="flex justify-center gap-2 pt-2">
-            {revealedLabels.map((id) => {
-              const layer = dessertLayers.find((l) => l.id === id);
-              if (!layer) return null;
-              return (
-                <span
-                  key={id}
-                  className="rounded-full border border-gold/50 bg-warm-white/85 px-3.5 py-1.5 text-xs font-semibold text-ink shadow-sm md:text-sm"
-                >
-                  {layer.label}
-                </span>
-              );
-            })}
-          </div>
-
-          {showFinalCta && (
-            <div className="pointer-events-auto mb-24 flex justify-center md:mb-16">
+        {showFinalCta && (
+          <div className="pointer-events-none absolute inset-x-0 bottom-24 flex justify-center md:bottom-16">
+            <div className="pointer-events-auto">
               <PrimaryButton href={dessertExperienceConfig.finalCta.href}>
                 {dessertExperienceConfig.finalCta.label}
               </PrimaryButton>
             </div>
-          )}
-        </div>
+          </div>
+        )}
 
         {scrollStages.map((stage) => (
           <ScrollTextStep
