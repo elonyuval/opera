@@ -38,6 +38,7 @@ export default function Hero() {
   const prefersReducedMotion = useReducedMotion();
   const performanceTier = usePerformanceTier();
   const hasPeachModel = useHasPeachModel();
+  const [peachReady, setPeachReady] = useState(false);
   const useLightHero = prefersReducedMotion || performanceTier === "low";
 
   return (
@@ -83,18 +84,25 @@ export default function Hero() {
             </div>
           ) : (
             <DessertCanvas dpr={1.5} withContactShadow className="h-full w-full">
-              <Suspense fallback={null}>
-                {hasPeachModel ? (
-                  <PeachHeroModel />
-                ) : (
-                  <DessertModel
-                    progressRef={progressRef}
-                    segments={dessertExperienceConfig.geometrySegments.high}
-                    idle
-                    idleRotationSpeed={dessertExperienceConfig.idleRotationSpeed}
-                  />
-                )}
-              </Suspense>
+              {/*
+                המודל האמיתי (GLB מתמונה) גדול יחסית (טקסטורות באיכות גבוהה).
+                כדי שהאתר יישאר מהיר וחלק, ה-fallback המקצועי מוצג מיד תמיד,
+                והמודל האמיתי "מחליף" אותו בשקט ברגע שסיים להיטען ברקע — אין
+                המתנה עם מסך ריק, ואין פגיעה במהירות הטעינה הראשונית.
+              */}
+              {!peachReady && (
+                <DessertModel
+                  progressRef={progressRef}
+                  segments={dessertExperienceConfig.geometrySegments.high}
+                  idle
+                  idleRotationSpeed={dessertExperienceConfig.idleRotationSpeed}
+                />
+              )}
+              {hasPeachModel && (
+                <Suspense fallback={null}>
+                  <PeachHeroModel onReady={() => setPeachReady(true)} />
+                </Suspense>
+              )}
             </DessertCanvas>
           )}
         </div>
