@@ -1,0 +1,6 @@
+<svg width="200" height="60" viewBox="0 0 200 60" xmlns="http://www.w3.org/2000/svg" role="img" aria-label="Opera Café Patisserie">
+  <title>Opera Café Patisserie</title>
+  <circle cx="18" cy="30" r="9" fill="#B78A45" />
+  <path d="M18 21c3 3 3 9 0 12" stroke="#FBF4E9" stroke-width="1.4" fill="none" />
+  <text x="36" y="38" font-family="Georgia, 'Frank Ruhl Libre', serif" font-size="28" fill="#2A1D14" letter-spacing="1">Opera</text>
+</svg>

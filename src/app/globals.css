@@ -1,0 +1,111 @@
+@import "tailwindcss";
+
+:root {
+  --color-cream: #fbf4e9;
+  --color-cream-dark: #f3e8d6;
+  --color-warm-white: #fffcf7;
+  --color-ink: #2a1d14;
+  --color-ink-soft: #5a4636;
+  --color-gold: #b78a45;
+  --color-gold-light: #e4cfa0;
+  --color-line: #e6dac3;
+  --color-mango: #f2a93b;
+  --color-strawberry: #d6485b;
+  --color-lemon: #e8c547;
+  --color-raspberry: #c13f5e;
+  --color-charcoal: #211711;
+  --color-charcoal-soft: #372417;
+}
+
+@theme inline {
+  --color-cream: var(--color-cream);
+  --color-cream-dark: var(--color-cream-dark);
+  --color-warm-white: var(--color-warm-white);
+  --color-ink: var(--color-ink);
+  --color-ink-soft: var(--color-ink-soft);
+  --color-gold: var(--color-gold);
+  --color-gold-light: var(--color-gold-light);
+  --color-line: var(--color-line);
+  --color-mango: var(--color-mango);
+  --color-strawberry: var(--color-strawberry);
+  --color-lemon: var(--color-lemon);
+  --color-raspberry: var(--color-raspberry);
+  --color-charcoal: var(--color-charcoal);
+  --color-charcoal-soft: var(--color-charcoal-soft);
+  --font-display: var(--font-frank-ruhl);
+  --font-body: var(--font-assistant);
+}
+
+html {
+  scroll-behavior: smooth;
+}
+
+body {
+  background: var(--color-cream);
+  color: var(--color-ink);
+  font-family: var(--font-body), system-ui, sans-serif;
+}
+
+h1,
+h2,
+h3,
+.font-display {
+  font-family: var(--font-display), serif;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.001ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.001ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
+.skip-link {
+  position: absolute;
+  right: 1rem;
+  top: -100%;
+  z-index: 100;
+  background: var(--color-ink);
+  color: var(--color-warm-white);
+  padding: 0.75rem 1.25rem;
+  border-radius: 0 0 0.5rem 0.5rem;
+  transition: top 0.2s ease;
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+::selection {
+  background: var(--color-gold-light);
+  color: var(--color-ink);
+}
+
+:focus-visible {
+  outline: 2px solid var(--color-gold);
+  outline-offset: 3px;
+}
+
+@keyframes marquee-scroll {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+.animate-marquee {
+  animation: marquee-scroll 42s linear infinite;
+}
+
+.animate-marquee:hover {
+  animation-play-state: paused;
+}
