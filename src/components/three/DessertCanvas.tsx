@@ -30,7 +30,8 @@ export default function DessertCanvas({
         camera={{ position: [0, 0.4, 6.5], fov: 32 }}
         shadows
       >
-        <color attach="background" args={["#fbf4e9"]} />
+        {/* אין background אטום בכוונה — ה-Canvas שקוף כדי שהקינוח "יצוף" ישירות
+            על הרקע האמיתי של הדף, בלי מלבן/קופסה נראית לעין */}
         <ambientLight intensity={0.65} color="#fff6e8" />
         <directionalLight
           position={[3, 5, 4]}

@@ -1,44 +1,20 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { useRef } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { hero, fruitDesserts } from "@/data/siteContent";
 import PrimaryButton from "@/components/shared/PrimaryButton";
 import DessertCanvas from "@/components/three/DessertCanvas";
 import DessertModel from "@/components/three/DessertModel";
-import PeachHeroModel from "@/components/three/PeachHeroModel";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { usePerformanceTier } from "@/hooks/usePerformanceTier";
 import { dessertExperienceConfig } from "@/data/dessertAnimationConfig";
-
-const PEACH_MODEL_URL = "/models/peach-shell.glb";
-
-/** בדיקת קיום מודל האפרסק האמיתי; אם נכשל — נופלים חזרה לקינוח ה-primitives */
-function useHasPeachModel() {
-  const [hasModel, setHasModel] = useState(false);
-
-  useEffect(() => {
-    let cancelled = false;
-    fetch(PEACH_MODEL_URL, { method: "HEAD" })
-      .then((res) => {
-        if (!cancelled && res.ok) setHasModel(true);
-      })
-      .catch(() => {});
-    return () => {
-      cancelled = true;
-    };
-  }, []);
-
-  return hasModel;
-}
 
 export default function Hero() {
   const progressRef = useRef(0);
   const prefersReducedMotion = useReducedMotion();
   const performanceTier = usePerformanceTier();
-  const hasPeachModel = useHasPeachModel();
-  const [peachReady, setPeachReady] = useState(false);
   const useLightHero = prefersReducedMotion || performanceTier === "low";
 
   return (
@@ -83,26 +59,15 @@ export default function Hero() {
               />
             </div>
           ) : (
+            // אותה קומפוננטה בדיוק שמופיעה בהמשך אנימציית הסקרול (DessertModel) —
+            // לא קינוח נפרד. במצב idle היא מציגה את המודל האמיתי (אם קיים) בסיבוב איטי.
             <DessertCanvas dpr={1.5} withContactShadow className="h-full w-full">
-              {/*
-                המודל האמיתי (GLB מתמונה) גדול יחסית (טקסטורות באיכות גבוהה).
-                כדי שהאתר יישאר מהיר וחלק, ה-fallback המקצועי מוצג מיד תמיד,
-                והמודל האמיתי "מחליף" אותו בשקט ברגע שסיים להיטען ברקע — אין
-                המתנה עם מסך ריק, ואין פגיעה במהירות הטעינה הראשונית.
-              */}
-              {!peachReady && (
-                <DessertModel
-                  progressRef={progressRef}
-                  segments={dessertExperienceConfig.geometrySegments.high}
-                  idle
-                  idleRotationSpeed={dessertExperienceConfig.idleRotationSpeed}
-                />
-              )}
-              {hasPeachModel && (
-                <Suspense fallback={null}>
-                  <PeachHeroModel onReady={() => setPeachReady(true)} />
-                </Suspense>
-              )}
+              <DessertModel
+                progressRef={progressRef}
+                segments={dessertExperienceConfig.geometrySegments.high}
+                idle
+                idleRotationSpeed={dessertExperienceConfig.idleRotationSpeed}
+              />
             </DessertCanvas>
           )}
         </div>

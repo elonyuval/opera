@@ -1,8 +1,9 @@
 "use client";
 
-import { Suspense, useEffect, useRef, useState } from "react";
+import { Suspense, useEffect, useMemo, useRef, useState } from "react";
 import { useGLTF } from "@react-three/drei";
 import { useFrame } from "@react-three/fiber";
+import { mergeVertices } from "three/examples/jsm/utils/BufferGeometryUtils.js";
 import * as THREE from "three";
 import {
   dessertLayers,
@@ -12,7 +13,11 @@ import {
 import DessertLayer from "@/components/three/DessertLayer";
 import { useLayerTransform } from "@/components/three/useLayerTransform";
 
-const MODEL_URL = "/models/opera-fruit-dessert.glb";
+const FULL_MODEL_URL = "/models/opera-fruit-dessert.glb";
+const PEACH_SHELL_URL = "/models/peach-shell.glb";
+
+const shellConfig = dessertLayers.find((layer) => layer.id === "shell")!;
+const restConfigs = dessertLayers.filter((layer) => layer.id !== "shell");
 
 const openingStage = scrollStages.find((stage) => stage.id === "opening")!;
 const explodeStage = scrollStages.find((stage) => stage.id === "explode")!;
@@ -24,8 +29,8 @@ function getExplodeRange(layerId: DessertLayerConfig["id"]): [number, number] {
   return [explodeStage.range[0], explodeStage.range[1]];
 }
 
-/** בודק אם קובץ GLB אמיתי קיים לפני שמנסים לטעון אותו עם useGLTF */
-function useHasRealModel(url: string) {
+/** בודק אם קובץ GLB קיים בנתיב הנתון לפני שמנסים לטעון אותו עם useGLTF */
+function useHasModel(url: string) {
   const [status, setStatus] = useState<"checking" | "found" | "missing">(
     "checking"
   );
@@ -86,7 +91,7 @@ function GltfLayerNode({
 
 /** טוען את public/models/opera-fruit-dessert.glb וממפה כל mesh לשכבה המתאימה לפי שם */
 function GltfDessert({ progressRef, idle, idleRotationSpeed }: DessertModelProps) {
-  const { nodes } = useGLTF(MODEL_URL) as unknown as {
+  const { nodes } = useGLTF(FULL_MODEL_URL) as unknown as {
     nodes: Record<string, THREE.Object3D>;
   };
 
@@ -106,6 +111,64 @@ function GltfDessert({ progressRef, idle, idleRotationSpeed }: DessertModelProps
           />
         );
       })}
+    </group>
+  );
+}
+
+/**
+ * המעטפת החיצונית (shell) האמיתית — מודל תלת-ממדי בעל טקסטורה שנוצר
+ * מתמונת סטודיו איכותית (Higgsfield: nano_banana ליצירת תמונה, Meshy
+ * image_to_3d עם PBR מלא להמרה ל-3D). מאחד את חוויית ה-Hero וה-scroll:
+ * אותו מודל בדיוק מונפש בשני המקומות, לא שני קינוחים נפרדים.
+ *
+ * גיאומטריית ה-mesh מגיעה עם וורטקסים כפולים בכל פאה (כרגיל בכלי
+ * reconstruction), ולכן מיזוג וורטקסים (mergeVertices) לפני חישוב
+ * הנורמלים הכרחי — אחרת המשטח נראה מפוצל/"פיקסלי" גם באיכות פוליגונים
+ * גבוהה, כי כל פאה מקבלת נורמל נפרד במקום החלקה בין פאות שכנות.
+ */
+function RealShellNode({
+  progressRef,
+  idle,
+  idleRotationSpeed,
+}: {
+  progressRef: React.RefObject<number>;
+  idle?: boolean;
+  idleRotationSpeed?: number;
+}) {
+  const { scene } = useGLTF(PEACH_SHELL_URL);
+  const groupRef = useRef<THREE.Group>(null);
+
+  const preparedScene = useMemo(() => {
+    const cloned = scene.clone(true);
+    cloned.traverse((child) => {
+      if (child instanceof THREE.Mesh) {
+        const merged = mergeVertices(child.geometry);
+        merged.computeVertexNormals();
+        child.geometry = merged;
+        child.castShadow = true;
+        child.receiveShadow = true;
+        const material = child.material as THREE.MeshStandardMaterial;
+        if (material) {
+          material.roughness = 0.32;
+          material.envMapIntensity = 1.15;
+        }
+      }
+    });
+    return cloned;
+  }, [scene]);
+
+  useLayerTransform({
+    groupRef,
+    config: shellConfig,
+    progressRef,
+    explodeRange: getExplodeRange("shell"),
+    idle,
+    idleRotationSpeed,
+  });
+
+  return (
+    <group ref={groupRef} scale={1.1} rotation={[0.05, 0, 0]}>
+      <primitive object={preparedScene} />
     </group>
   );
 }
@@ -154,16 +217,41 @@ function Garnish({
   );
 }
 
-/** הרכבת ה-fallback המקצועי מ-primitives — פעיל כברירת מחדל עד שיסופק GLB אמיתי */
-function PrimitiveDessert({
+interface InnerLayersProps extends DessertModelProps {
+  useRealShell: boolean;
+}
+
+/** שכבות הפנים (מוס/קרם/ליבה/קראנץ'/בסיס) — תמיד primitives, כי אין תמונה של החתך הפנימי */
+function InnerLayers({
   progressRef,
   segments,
   idle,
   idleRotationSpeed,
-}: DessertModelProps) {
+  useRealShell,
+}: InnerLayersProps) {
   return (
     <group position={[0, -0.2, 0]}>
-      {dessertLayers.map((config) => (
+      {!useRealShell && (
+        <DessertLayer
+          key={shellConfig.id}
+          config={shellConfig}
+          progressRef={progressRef}
+          explodeRange={getExplodeRange(shellConfig.id)}
+          segments={segments}
+          idle={idle}
+          idleRotationSpeed={idleRotationSpeed}
+        />
+      )}
+      {useRealShell && (
+        <Suspense fallback={null}>
+          <RealShellNode
+            progressRef={progressRef}
+            idle={idle}
+            idleRotationSpeed={idleRotationSpeed}
+          />
+        </Suspense>
+      )}
+      {restConfigs.map((config) => (
         <DessertLayer
           key={config.id}
           config={config}
@@ -180,15 +268,16 @@ function PrimitiveDessert({
 }
 
 export default function DessertModel(props: DessertModelProps) {
-  const modelStatus = useHasRealModel(MODEL_URL);
+  const fullModelStatus = useHasModel(FULL_MODEL_URL);
+  const peachShellStatus = useHasModel(PEACH_SHELL_URL);
 
-  if (modelStatus === "found") {
+  if (fullModelStatus === "found") {
     return (
-      <Suspense fallback={<PrimitiveDessert {...props} />}>
+      <Suspense fallback={<InnerLayers {...props} useRealShell={false} />}>
         <GltfDessert {...props} />
       </Suspense>
     );
   }
 
-  return <PrimitiveDessert {...props} />;
+  return <InnerLayers {...props} useRealShell={peachShellStatus === "found"} />;
 }
