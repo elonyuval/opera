@@ -1,20 +1,43 @@
 "use client";
 
-import { useRef } from "react";
+import { Suspense, useEffect, useRef, useState } from "react";
 import Image from "next/image";
 import { motion } from "framer-motion";
 import { hero, fruitDesserts } from "@/data/siteContent";
 import PrimaryButton from "@/components/shared/PrimaryButton";
 import DessertCanvas from "@/components/three/DessertCanvas";
 import DessertModel from "@/components/three/DessertModel";
+import PeachHeroModel from "@/components/three/PeachHeroModel";
 import { useReducedMotion } from "@/hooks/useReducedMotion";
 import { usePerformanceTier } from "@/hooks/usePerformanceTier";
 import { dessertExperienceConfig } from "@/data/dessertAnimationConfig";
+
+const PEACH_MODEL_URL = "/models/peach-shell.glb";
+
+/** בדיקת קיום מודל האפרסק האמיתי; אם נכשל — נופלים חזרה לקינוח ה-primitives */
+function useHasPeachModel() {
+  const [hasModel, setHasModel] = useState(false);
+
+  useEffect(() => {
+    let cancelled = false;
+    fetch(PEACH_MODEL_URL, { method: "HEAD" })
+      .then((res) => {
+        if (!cancelled && res.ok) setHasModel(true);
+      })
+      .catch(() => {});
+    return () => {
+      cancelled = true;
+    };
+  }, []);
+
+  return hasModel;
+}
 
 export default function Hero() {
   const progressRef = useRef(0);
   const prefersReducedMotion = useReducedMotion();
   const performanceTier = usePerformanceTier();
+  const hasPeachModel = useHasPeachModel();
   const useLightHero = prefersReducedMotion || performanceTier === "low";
 
   return (
@@ -60,12 +83,18 @@ export default function Hero() {
             </div>
           ) : (
             <DessertCanvas dpr={1.5} withContactShadow className="h-full w-full">
-              <DessertModel
-                progressRef={progressRef}
-                segments={dessertExperienceConfig.geometrySegments.high}
-                idle
-                idleRotationSpeed={dessertExperienceConfig.idleRotationSpeed}
-              />
+              <Suspense fallback={null}>
+                {hasPeachModel ? (
+                  <PeachHeroModel />
+                ) : (
+                  <DessertModel
+                    progressRef={progressRef}
+                    segments={dessertExperienceConfig.geometrySegments.high}
+                    idle
+                    idleRotationSpeed={dessertExperienceConfig.idleRotationSpeed}
+                  />
+                )}
+              </Suspense>
             </DessertCanvas>
           )}
         </div>
