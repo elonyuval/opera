@@ -205,8 +205,8 @@ export const scrollStages: ScrollStageConfig[] = [
     id: "explode",
     range: [0.4, 0.75],
     text: "כל שכבה נוצרה כדי להשאיר טעם של עוד",
-    cameraDistance: 8.5,
-    cameraHeight: 0.55,
+    cameraDistance: 6.8,
+    cameraHeight: 0.5,
   },
   {
     id: "reassemble",
@@ -216,6 +216,31 @@ export const scrollStages: ScrollStageConfig[] = [
     cameraHeight: 0.3,
   },
 ];
+
+/**
+ * קונפיג "פתיחת" הקינוח האמיתי: במקום פירוק לחלקים נפרדים (שנראה לא עקבי
+ * לצד מודל פוטוריאלי), אותו mesh בדיוק "נחתך" בעדינות — המכסה העליון
+ * מתרומם מעט וחושף "מילוי" פשוט וארטיסטי, בלי לערבב סגנונות שונים.
+ */
+export const shellOpenConfig = {
+  /** גובה מקומי (במרחב ה-mesh, אחרי scale) שבו נעשה החיתוך */
+  clipLocalY: 0.12,
+  /** כמה גבוה "המכסה" מתרומם כשפתוח לגמרי */
+  lidLiftDistance: 0.85,
+  /** רדיוס דיסקת ה"מילוי" הנחשפת בחיתוך */
+  capRadius: 0.95,
+  capColor: "#f7ddb8",
+  /** התקדמות גלילה: מתי הפתיחה מתחילה/מסתיימת, ומתי הסגירה מתחילה/מסתיימת */
+  openStart: 0.28,
+  openEnd: 0.55,
+  closeStart: 0.78,
+  closeEnd: 1,
+  labels: [
+    { text: "פרי", revealAt: 0.3 },
+    { text: "קרם", revealAt: 0.42 },
+    { text: "הפתעה", revealAt: 0.55 },
+  ],
+};
 
 export const dessertExperienceConfig = {
   /** גובה כולל של ה-section הארוך, ביחידות vh */

@@ -1,9 +1,22 @@
 "use client";
 
-import { Suspense } from "react";
-import { Canvas } from "@react-three/fiber";
+import { Suspense, useEffect } from "react";
+import { Canvas, useThree } from "@react-three/fiber";
 import { ContactShadows } from "@react-three/drei";
 import type { ReactNode } from "react";
+
+/** מפעיל clipping planes ברנדרר — נדרש לאפקט "פתיחת" הקינוח האמיתי */
+function ClippingSetup() {
+  const { gl } = useThree();
+  /* eslint-disable react-hooks/immutability -- flipping a renderer flag on
+     the stable WebGLRenderer instance is the standard react-three-fiber
+     setup pattern, not React state mutation. */
+  useEffect(() => {
+    gl.localClippingEnabled = true;
+  }, [gl]);
+  /* eslint-enable react-hooks/immutability */
+  return null;
+}
 
 interface DessertCanvasProps {
   children: ReactNode;
@@ -32,6 +45,7 @@ export default function DessertCanvas({
       >
         {/* אין background אטום בכוונה — ה-Canvas שקוף כדי שהקינוח "יצוף" ישירות
             על הרקע האמיתי של הדף, בלי מלבן/קופסה נראית לעין */}
+        <ClippingSetup />
         <ambientLight intensity={0.65} color="#fff6e8" />
         <directionalLight
           position={[3, 5, 4]}
